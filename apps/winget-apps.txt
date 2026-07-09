@@ -1,0 +1,25 @@
+# Add one Winget package ID per line.
+# Examples:
+# Microsoft.VisualStudioCode
+# Git.Git
+# Microsoft.PowerToys
+# Microsoft.WindowsTerminal
+# 7zip.7zip
+
+Parsec.Parsec
+Git.Git
+Microsoft.VisualStudioCode
+Microsoft.DotNet.SDK.10
+Microsoft.VCRedist.2015+.x64
+Microsoft.PowerToys
+StartIsBack.StartAllBack
+Spotify.Spotify
+Overwolf.CurseForge
+Blitz.Blitz
+Blizzard.BattleNet
+RiotGames.LeagueOfLegends.EUW
+Discord.Discord
+Valve.Steam
+Zen-Team.Zen-Browser
+WeMod.WeMod
+Gibbed.SteamAchievementManager
