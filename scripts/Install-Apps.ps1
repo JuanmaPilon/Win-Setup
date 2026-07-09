@@ -1,13 +1,20 @@
 [CmdletBinding()]
-param([Parameter(Mandatory = $true)][string]$RepositoryRoot)
+param(
+    [Parameter(Mandatory = $true)][string]$RepositoryRoot,
+    [switch]$DryRun
+)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 Import-Module (Join-Path $RepositoryRoot 'modules/SetupHelpers.psm1') -Force
 
+if ($DryRun) {
+    Write-SetupStep 'Running application installation in dry-run mode.'
+}
+
 Write-SetupStep 'Ensuring applications from Winget manifest are present'
-Ensure-WingetAvailable
+Initialize-Winget
 
 $manifestPath = Join-Path $RepositoryRoot 'apps/winget-apps.txt'
 if (-not (Test-Path $manifestPath)) {
@@ -16,6 +23,12 @@ if (-not (Test-Path $manifestPath)) {
 
 $packages = Get-Content $manifestPath | Where-Object { $_ -and -not $_.TrimStart().StartsWith('#') }
 $defaultInstallLocation = if ($env:ProgramFiles) { $env:ProgramFiles } else { 'C:\Program Files' }
+
+$summary = [ordered]@{
+    Installed = @()
+    WouldInstall = @()
+    Failed = @()
+}
 
 foreach ($package in $packages) {
     $packageId = $package.Trim()
@@ -51,6 +64,12 @@ foreach ($package in $packages) {
     $installText = ($installOutput | Out-String)
     $installExitCode = $LASTEXITCODE
 
+    if ($DryRun) {
+        Write-SetupStep "Would install package: $packageId"
+        $summary.WouldInstall += $packageId
+        continue
+    }
+
     if ($installExitCode -ne 0 -and $installText -match 'requires an install location|Install location is required') {
         Write-SetupStep "Package requires an install location; retrying with: $defaultInstallLocation"
         $installArgs += @('--location', $defaultInstallLocation)
@@ -63,8 +82,29 @@ foreach ($package in $packages) {
         Write-SetupStep "Failed to install package: $packageId"
         Write-SetupStep $installText
         Write-SetupStep "Continuing with the next package."
+        $summary.Failed += $packageId
         continue
     }
+
+    Write-SetupStep "Installed package: $packageId"
+    $summary.Installed += $packageId
+}
+
+Write-SetupStep 'Application installation stage completed.'
+
+$summaryText = "Installed: $($summary.Installed.Count); Would install: $($summary.WouldInstall.Count); Failed: $($summary.Failed.Count)"
+Write-SetupStep "Install summary: $summaryText"
+
+if ($summary.Installed.Count -gt 0) {
+    Write-SetupStep "Installed during this run: $($summary.Installed -join ', ')"
+}
+
+if ($summary.WouldInstall.Count -gt 0) {
+    Write-SetupStep "Would install in dry-run: $($summary.WouldInstall -join ', ')"
+}
+
+if ($summary.Failed.Count -gt 0) {
+    Write-SetupStep "Failed packages: $($summary.Failed -join ', ')"
 }
 
 Write-SetupStep 'Application installation stage completed.'

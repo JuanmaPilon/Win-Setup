@@ -2,7 +2,8 @@
 param(
     [switch]$SkipApps,
     [switch]$SkipConfigs,
-    [switch]$SkipFinalize
+    [switch]$SkipFinalize,
+    [switch]$DryRun
 )
 
 Set-StrictMode -Version Latest
@@ -12,9 +13,12 @@ $repoRoot = $PSScriptRoot
 Import-Module (Join-Path $repoRoot 'modules/SetupHelpers.psm1') -Force
 
 Write-SetupStep "Starting Windows setup from $repoRoot"
+if ($DryRun) {
+    Write-SetupStep 'Dry run mode enabled: no packages will be installed.'
+}
 
 if (-not $SkipApps) {
-    & (Join-Path $repoRoot 'scripts/Install-Apps.ps1') -RepositoryRoot $repoRoot
+    & (Join-Path $repoRoot 'scripts/Install-Apps.ps1') -RepositoryRoot $repoRoot -DryRun:$DryRun
 }
 
 if (-not $SkipConfigs) {

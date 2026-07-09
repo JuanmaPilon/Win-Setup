@@ -4,7 +4,7 @@ function Write-SetupStep {
     Write-Host "[setup] $Message" -ForegroundColor Cyan
 }
 
-function Assert-CommandAvailable {
+function Test-CommandAvailable {
     param([Parameter(Mandatory = $true)][string]$Name)
 
     if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
@@ -12,7 +12,7 @@ function Assert-CommandAvailable {
     }
 }
 
-function Ensure-WingetAvailable {
+function Initialize-Winget {
     if (Get-Command winget -ErrorAction SilentlyContinue) {
         return
     }
@@ -52,4 +52,4 @@ function Import-RegistryGroup {
     reg import $Path | Out-Null
 }
 
-Export-ModuleMember -Function Write-SetupStep, Assert-CommandAvailable, Ensure-WingetAvailable, Import-RegistryGroup
+Export-ModuleMember -Function Write-SetupStep, Test-CommandAvailable, Initialize-Winget, Import-RegistryGroup
