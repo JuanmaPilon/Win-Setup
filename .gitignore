@@ -1,0 +1,19 @@
+# Local environment backups
+backups/*.json
+backups/*.reg
+backups/*.bak
+backups/*.log
+
+# Temporary or machine-specific artifacts
+*.tmp
+*.temp
+*.log
+
+# PowerShell local transient files
+*.ps1~
+
+# Optional local secrets or user-specific state
+secrets/
+*.pem
+*.key
+*.pfx

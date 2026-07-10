@@ -33,3 +33,7 @@ This repository is a personal Windows infrastructure-as-code starter for reprodu
 ## Notes
 
 The initial implementation is intentionally small and modular. Each script has a focused responsibility so the setup process can grow over time without becoming brittle.
+
+## Backup policy
+
+Sensitive or machine-specific data should not be committed by default. Backup files such as environment variable exports, registry snapshots, or app-specific state should stay under the backups directory and can be excluded from Git when needed.

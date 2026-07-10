@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "general": {
+    "is_elevated": false
+  },
+  "theme": {
+    "selected_theme": "system"
+  }
+}
