@@ -17,3 +17,10 @@ secrets/
 *.pem
 *.key
 *.pfx
+
+# PowerToys telemetry and runtime state files
+configs/powertoys/**/settings-telemetry.json
+configs/powertoys/**/log_settings.json
+configs/powertoys/**/last_version_run.json
+configs/powertoys/**/UpdateState.json
+configs/powertoys/**/oobe_settings.json

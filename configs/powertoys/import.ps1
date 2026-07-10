@@ -21,16 +21,20 @@ if (-not (Test-Path $powertoysConfigPath)) {
     return
 }
 
-$filesToCopy = @(
-    'settings.json'
-)
+$filesToCopy = Get-ChildItem -Path $configSource -Recurse -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -match 'settings|config|json|xml|ini|theme' }
 
-foreach ($file in $filesToCopy) {
-    $sourceFile = Join-Path $configSource $file
-    if (Test-Path $sourceFile) {
-        Copy-Item -Path $sourceFile -Destination (Join-Path $powertoysConfigPath $file) -Force
-        Write-SetupStep "Imported PowerToys file: $file"
+foreach ($sourceFile in $filesToCopy) {
+    $relativePath = $sourceFile.FullName.Substring($configSource.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+    $destinationPath = Join-Path $powertoysConfigPath $relativePath
+    $destinationDirectory = Split-Path -Parent $destinationPath
+
+    if (-not (Test-Path $destinationDirectory)) {
+        New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
     }
+
+    Copy-Item -Path $sourceFile.FullName -Destination $destinationPath -Force
+    Write-SetupStep "Imported PowerToys file: $relativePath"
 }
 
 Write-SetupStep 'PowerToys configuration import completed.'
