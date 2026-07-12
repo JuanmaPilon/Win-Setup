@@ -47,6 +47,28 @@ function Initialize-Winget {
 
     Write-SetupStep 'Winget was not found. Attempting to bootstrap it automatically.'
 
+    try {
+        $progressPreference = 'SilentlyContinue'
+        Install-PackageProvider -Name NuGet -Force | Out-Null
+        Install-Module -Name Microsoft.WinGet.Client -Force -Repository PSGallery -Scope CurrentUser | Out-Null
+
+        Import-Module Microsoft.WinGet.Client -Force -ErrorAction Stop
+        Repair-WinGetPackageManager -AllUsers -Force
+    }
+    catch {
+        Write-SetupStep 'The Microsoft.WinGet.Client repair path did not succeed; trying the official installer.'
+    }
+
+    $wingetPath = Get-WingetCommandPath
+    if ($wingetPath) {
+        $wingetDirectory = Split-Path -Parent $wingetPath
+        if (-not ($env:Path -split ';' | Where-Object { $_ -eq $wingetDirectory })) {
+            $env:Path = "$env:Path;$wingetDirectory"
+        }
+
+        return $wingetPath
+    }
+
     $tempDir = Join-Path $env:TEMP 'winget-bootstrap'
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
     $installerPath = Join-Path $tempDir 'Microsoft.DesktopAppInstaller.exe'
