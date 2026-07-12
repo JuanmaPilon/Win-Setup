@@ -21,12 +21,31 @@ if (-not (Test-Path $resolvedInputPath)) {
 
 $data = Get-Content -Path $resolvedInputPath -Raw | ConvertFrom-Json
 
+$importedUser = 0
+$importedMachine = 0
+$skipped = 0
+
 foreach ($entry in $data.user.PSObject.Properties) {
-    [Environment]::SetEnvironmentVariable($entry.Name, [string]$entry.Value, 'User')
+    try {
+        [Environment]::SetEnvironmentVariable($entry.Name, [string]$entry.Value, 'User')
+        $importedUser++
+    }
+    catch {
+        Write-Warning "Could not import user environment variable '$($entry.Name)': $($_.Exception.Message)"
+        $skipped++
+    }
 }
 
 foreach ($entry in $data.machine.PSObject.Properties) {
-    [Environment]::SetEnvironmentVariable($entry.Name, [string]$entry.Value, 'Machine')
+    try {
+        [Environment]::SetEnvironmentVariable($entry.Name, [string]$entry.Value, 'Machine')
+        $importedMachine++
+    }
+    catch {
+        Write-Warning "Could not import machine environment variable '$($entry.Name)': $($_.Exception.Message)"
+        $skipped++
+    }
 }
 
-Write-Host 'Environment variables imported.' -ForegroundColor Green
+Write-SetupSuccess "Environment variables imported. User: $importedUser, Machine: $importedMachine, Skipped: $skipped"
+Write-SetupWarning 'Note: machine-level values may require an elevated PowerShell session.'

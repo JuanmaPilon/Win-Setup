@@ -1,7 +1,31 @@
 function Write-SetupStep {
     param([Parameter(Mandatory = $true)][string]$Message)
 
-    Write-Host "[setup] $Message" -ForegroundColor Cyan
+    Write-Host "[setup] $Message" -ForegroundColor DarkCyan
+}
+
+function Write-SetupInfo {
+    param([Parameter(Mandatory = $true)][string]$Message)
+
+    Write-Host "[setup] $Message" -ForegroundColor Gray
+}
+
+function Write-SetupSuccess {
+    param([Parameter(Mandatory = $true)][string]$Message)
+
+    Write-Host "[setup] $Message" -ForegroundColor Green
+}
+
+function Write-SetupWarning {
+    param([Parameter(Mandatory = $true)][string]$Message)
+
+    Write-Host "[setup] $Message" -ForegroundColor Yellow
+}
+
+function Write-SetupError {
+    param([Parameter(Mandatory = $true)][string]$Message)
+
+    Write-Host "[setup] $Message" -ForegroundColor Red
 }
 
 function Test-CommandAvailable {
@@ -114,4 +138,4 @@ function Import-RegistryGroup {
     reg import $Path | Out-Null
 }
 
-Export-ModuleMember -Function Write-SetupStep, Test-CommandAvailable, Initialize-Winget, Import-RegistryGroup
+Export-ModuleMember -Function Write-SetupStep, Write-SetupInfo, Write-SetupSuccess, Write-SetupWarning, Write-SetupError, Test-CommandAvailable, Initialize-Winget, Import-RegistryGroup

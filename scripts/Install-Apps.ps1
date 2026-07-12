@@ -19,14 +19,14 @@ $wingetAvailable = $false
 try {
     $wingetPath = Initialize-Winget
     $wingetAvailable = $true
-    Write-SetupStep "Winget ready at $wingetPath"
+    Write-SetupSuccess "Winget ready at $wingetPath"
 }
 catch {
-    Write-SetupStep 'Winget is not available after bootstrap attempts.'
-    Write-SetupStep 'This commonly happens on LTSC/IoT builds or systems without App Installer.'
-    Write-SetupStep $_.Exception.Message
-    Write-SetupStep 'Skipping package installation for this run.'
-    Write-SetupStep 'Install Winget manually and rerun the setup later.'
+    Write-SetupError 'Winget is not available after bootstrap attempts.'
+    Write-SetupWarning 'This commonly happens on LTSC/IoT builds or systems without App Installer.'
+    Write-SetupWarning $_.Exception.Message
+    Write-SetupWarning 'Skipping package installation for this run.'
+    Write-SetupWarning 'Install Winget manually and rerun the setup later.'
     return
 }
 
@@ -79,7 +79,7 @@ foreach ($package in $packages) {
     $installExitCode = $LASTEXITCODE
 
     if ($DryRun) {
-        Write-SetupStep "Would install package: $packageId"
+        Write-SetupWarning "Would install package: $packageId"
         $summary.WouldInstall += $packageId
         continue
     }
@@ -93,14 +93,14 @@ foreach ($package in $packages) {
     }
 
     if ($installExitCode -ne 0) {
-        Write-SetupStep "Failed to install package: $packageId"
-        Write-SetupStep $installText
-        Write-SetupStep "Continuing with the next package."
+        Write-SetupError "Failed to install package: $packageId"
+        Write-SetupWarning $installText
+        Write-SetupWarning "Continuing with the next package."
         $summary.Failed += $packageId
         continue
     }
 
-    Write-SetupStep "Installed package: $packageId"
+    Write-SetupSuccess "Installed package: $packageId"
     $summary.Installed += $packageId
 }
 

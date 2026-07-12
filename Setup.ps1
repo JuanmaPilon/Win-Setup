@@ -14,7 +14,7 @@ Import-Module (Join-Path $repoRoot 'modules/SetupHelpers.psm1') -Force
 
 Write-SetupStep "Starting Windows setup from $repoRoot"
 if ($DryRun) {
-    Write-SetupStep 'Dry run mode enabled: no packages will be installed.'
+    Write-SetupWarning 'Dry run mode enabled: no packages will be installed.'
 }
 
 if (-not $SkipApps) {
@@ -29,4 +29,4 @@ if (-not $SkipFinalize) {
     & (Join-Path $repoRoot 'scripts/Finalize.ps1') -RepositoryRoot $repoRoot
 }
 
-Write-SetupStep 'Setup completed.'
+Write-SetupSuccess 'Setup completed.'
