@@ -14,7 +14,21 @@ if ($DryRun) {
 }
 
 Write-SetupStep 'Ensuring applications from Winget manifest are present'
-Initialize-Winget
+$wingetAvailable = $false
+
+try {
+    $wingetPath = Initialize-Winget
+    $wingetAvailable = $true
+    Write-SetupStep "Winget ready at $wingetPath"
+}
+catch {
+    Write-SetupStep 'Winget is not available after bootstrap attempts.'
+    Write-SetupStep 'This commonly happens on LTSC/IoT builds or systems without App Installer.'
+    Write-SetupStep $_.Exception.Message
+    Write-SetupStep 'Skipping package installation for this run.'
+    Write-SetupStep 'Install Winget manually and rerun the setup later.'
+    return
+}
 
 $manifestPath = Join-Path $RepositoryRoot 'apps/winget-apps.txt'
 if (-not (Test-Path $manifestPath)) {
