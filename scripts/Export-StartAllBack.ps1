@@ -12,7 +12,7 @@ $scriptDirectory = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Paren
 $repoRoot = Split-Path -Parent $scriptDirectory
 
 if ([string]::IsNullOrWhiteSpace($OutputRoot)) {
-    $OutputRoot = 'configs/startallback'
+    $OutputRoot = 'private-configs/startallback'
 }
 
 $resolvedOutputRoot = if ([System.IO.Path]::IsPathRooted($OutputRoot)) {

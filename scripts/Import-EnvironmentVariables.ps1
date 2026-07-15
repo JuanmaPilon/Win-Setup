@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$InputPath = 'backups/environment-variables.json'
+    [string]$InputPath = 'private-configs/backups/environment-variables.json'
 )
 
 Set-StrictMode -Version Latest
@@ -14,6 +14,11 @@ if ([System.IO.Path]::IsPathRooted($InputPath)) {
 }
 else {
     $resolvedInputPath = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $InputPath))
+}
+
+$legacyPath = [System.IO.Path]::GetFullPath((Join-Path $repoRoot 'backups/environment-variables.json'))
+if (-not (Test-Path $resolvedInputPath) -and (Test-Path $legacyPath)) {
+    $resolvedInputPath = $legacyPath
 }
 
 if (-not (Test-Path $resolvedInputPath)) {

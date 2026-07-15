@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$OutputRoot = 'configs/powertoys'
+    [string]$OutputRoot = 'private-configs/powertoys'
 )
 
 Set-StrictMode -Version Latest

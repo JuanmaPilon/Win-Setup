@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$OutputPath = 'backups/environment-variables.json'
+    [string]$OutputPath = 'private-configs/backups/environment-variables.json'
 )
 
 Set-StrictMode -Version Latest

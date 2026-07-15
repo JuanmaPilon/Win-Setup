@@ -18,7 +18,9 @@ catch {
 
 Write-SetupStep 'Preparing StartAllBack configuration import'
 
-$sourceRoot = Join-Path $RepositoryRoot 'configs/startallback'
+$privateSourceRoot = Join-Path $RepositoryRoot 'private-configs/startallback'
+$publicSourceRoot = Join-Path $RepositoryRoot 'configs/startallback'
+$sourceRoot = if (Test-Path $privateSourceRoot) { $privateSourceRoot } else { $publicSourceRoot }
 $targetRoot = Join-Path $env:LOCALAPPDATA 'StartAllBack'
 
 if (-not (Test-Path $sourceRoot)) {

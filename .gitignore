@@ -14,6 +14,7 @@ backups/*.log
 
 # Optional local secrets or user-specific state
 secrets/
+private-configs/
 *.pem
 *.key
 *.pfx
@@ -24,3 +25,11 @@ configs/powertoys/**/log_settings.json
 configs/powertoys/**/last_version_run.json
 configs/powertoys/**/UpdateState.json
 configs/powertoys/**/oobe_settings.json
+
+# Keep public configs folder code-only; sensitive exports go to private-configs/
+configs/powertoys/**
+!configs/powertoys/import.ps1
+!configs/powertoys/README.md
+configs/startallback/**
+!configs/startallback/import.ps1
+!configs/startallback/README.md

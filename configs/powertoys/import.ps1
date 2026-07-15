@@ -14,7 +14,9 @@ catch {
 
 Write-SetupStep 'Preparing PowerToys configuration import'
 
-$configSource = Join-Path $RepositoryRoot 'configs/powertoys'
+$privateConfigSource = Join-Path $RepositoryRoot 'private-configs/powertoys'
+$publicConfigSource = Join-Path $RepositoryRoot 'configs/powertoys'
+$configSource = if (Test-Path $privateConfigSource) { $privateConfigSource } else { $publicConfigSource }
 $powertoysConfigPath = Join-Path $env:LOCALAPPDATA 'Microsoft/PowerToys'
 
 if (-not (Test-Path $configSource)) {
