@@ -39,22 +39,24 @@ if (-not (Test-Path $resolvedOutputRoot)) {
     New-Item -ItemType Directory -Path $resolvedOutputRoot -Force | Out-Null
 }
 
-$filesToExport = Get-ChildItem -Path $sourceRoot -Recurse -File | Where-Object { $_.Name -match 'settings|config|json|xml|ini|theme' } | Select-Object -ExpandProperty FullName
+Get-Process -Name 'PowerToys' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Get-Process -Name 'PowerToys.Settings' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
+$filesToExport = Get-ChildItem -Path $sourceRoot -Recurse -File -ErrorAction SilentlyContinue
 if (-not $filesToExport) {
     Write-Host "No PowerToys configuration files were found in $sourceRoot" -ForegroundColor Yellow
     return
 }
 
 foreach ($sourceFile in $filesToExport) {
-    $relativePath = $sourceFile.Substring($sourceRoot.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+    $relativePath = $sourceFile.FullName.Substring($sourceRoot.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
     $destinationPath = Join-Path $resolvedOutputRoot $relativePath
     $destinationDirectory = Split-Path -Parent $destinationPath
     if (-not (Test-Path $destinationDirectory)) {
         New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
     }
 
-    Copy-Item -Path $sourceFile -Destination $destinationPath -Force
+    Copy-Item -Path $sourceFile.FullName -Destination $destinationPath -Force
     Write-Host "Exported PowerToys file: $relativePath" -ForegroundColor Green
 }
 

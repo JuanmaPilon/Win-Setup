@@ -4,9 +4,10 @@ param(
 )
 
 Set-StrictMode -Version Latest
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Continue'
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
+Import-Module (Join-Path $repoRoot 'modules/SetupHelpers.psm1') -Force
 
 if ([System.IO.Path]::IsPathRooted($InputPath)) {
     $resolvedInputPath = [System.IO.Path]::GetFullPath($InputPath)
@@ -16,10 +17,17 @@ else {
 }
 
 if (-not (Test-Path $resolvedInputPath)) {
-    throw "Environment variable backup not found: $resolvedInputPath"
+    Write-SetupError "Environment variable backup not found: $resolvedInputPath"
+    return
 }
 
-$data = Get-Content -Path $resolvedInputPath -Raw | ConvertFrom-Json
+try {
+    $data = Get-Content -Path $resolvedInputPath -Raw | ConvertFrom-Json
+}
+catch {
+    Write-SetupError "Failed to parse environment variables backup: $($_.Exception.Message)"
+    return
+}
 
 $importedUser = 0
 $importedMachine = 0
@@ -31,7 +39,7 @@ foreach ($entry in $data.user.PSObject.Properties) {
         $importedUser++
     }
     catch {
-        Write-Warning "Could not import user environment variable '$($entry.Name)': $($_.Exception.Message)"
+        Write-SetupWarning "Could not import user environment variable '$($entry.Name)': $($_.Exception.Message)"
         $skipped++
     }
 }
@@ -42,7 +50,7 @@ foreach ($entry in $data.machine.PSObject.Properties) {
         $importedMachine++
     }
     catch {
-        Write-Warning "Could not import machine environment variable '$($entry.Name)': $($_.Exception.Message)"
+        Write-SetupWarning "Could not import machine environment variable '$($entry.Name)': $($_.Exception.Message)"
         $skipped++
     }
 }

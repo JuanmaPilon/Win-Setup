@@ -17,7 +17,13 @@ if (-not $importScripts) {
 
 foreach ($importScript in $importScripts) {
     Write-SetupStep "Running import script: $($importScript.FullName)"
-    & $importScript.FullName -RepositoryRoot $RepositoryRoot
+    try {
+        & $importScript.FullName -RepositoryRoot $RepositoryRoot
+    }
+    catch {
+        Write-SetupWarning "Import script failed: $($_.Exception.Message)"
+        Write-SetupWarning "Continuing with the next import script."
+    }
 }
 
 Write-SetupStep 'Configuration import stage completed.'
