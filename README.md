@@ -37,3 +37,7 @@ The initial implementation is intentionally small and modular. Each script has a
 ## Backup policy
 
 Sensitive or machine-specific data should not be committed by default. Backup files such as environment variable exports, registry snapshots, or app-specific state should stay under the backups directory and can be excluded from Git when needed.
+
+## Config coverage
+
+The current setup flow focuses on environment variables, StartAllBack, PowerToys, and Windows UI preferences (mouse/theme). Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.

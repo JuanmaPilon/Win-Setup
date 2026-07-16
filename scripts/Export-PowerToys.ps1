@@ -42,6 +42,31 @@ if (-not (Test-Path $resolvedOutputRoot)) {
 Get-Process -Name 'PowerToys' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 Get-Process -Name 'PowerToys.Settings' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
+function Test-ShouldExportPowerToysFile {
+    param([Parameter(Mandatory = $true)][string]$RelativePath)
+
+    $normalizedPath = $RelativePath -replace '\\', '/'
+
+    if ($normalizedPath -match '(^|/)Logs(/|$)' -or $normalizedPath -match '(^|/)RunnerLogs(/|$)' -or $normalizedPath -match '(^|/)UpdateLogs(/|$)' -or $normalizedPath -match '(^|/)Updates(/|$)') {
+        return $false
+    }
+
+    if ($normalizedPath -match '\.(log|tmp|bak|lock)$') {
+        return $false
+    }
+
+    switch ($RelativePath) {
+        'last_version_run.json' { return $false }
+        'log_settings.json' { return $false }
+        'oobe_settings.json' { return $false }
+        'settings-telemetry.json' { return $false }
+        'UpdateState.json' { return $false }
+        'settings-placement.json' { return $false }
+    }
+
+    return $true
+}
+
 $filesToExport = Get-ChildItem -Path $sourceRoot -Recurse -File -ErrorAction SilentlyContinue
 if (-not $filesToExport) {
     Write-Host "No PowerToys configuration files were found in $sourceRoot" -ForegroundColor Yellow
@@ -50,6 +75,10 @@ if (-not $filesToExport) {
 
 foreach ($sourceFile in $filesToExport) {
     $relativePath = $sourceFile.FullName.Substring($sourceRoot.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+    if (-not (Test-ShouldExportPowerToysFile -RelativePath $relativePath)) {
+        continue
+    }
+
     $destinationPath = Join-Path $resolvedOutputRoot $relativePath
     $destinationDirectory = Split-Path -Parent $destinationPath
     if (-not (Test-Path $destinationDirectory)) {

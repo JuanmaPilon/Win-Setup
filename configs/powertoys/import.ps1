@@ -29,9 +29,42 @@ if (-not (Test-Path $powertoysConfigPath)) {
     return
 }
 
+Get-Process -Name 'PowerToys' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Get-Process -Name 'PowerToys.Settings' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+
+function Test-ShouldImportPowerToysFile {
+    param([Parameter(Mandatory = $true)][string]$RelativePath)
+
+    $normalizedPath = $RelativePath -replace '\\', '/'
+
+    if ($normalizedPath -match '(^|/)Logs(/|$)' -or $normalizedPath -match '(^|/)RunnerLogs(/|$)' -or $normalizedPath -match '(^|/)UpdateLogs(/|$)' -or $normalizedPath -match '(^|/)Updates(/|$)') {
+        return $false
+    }
+
+    if ($normalizedPath -match '\.(log|tmp|bak|lock)$') {
+        return $false
+    }
+
+    switch ($RelativePath) {
+        'last_version_run.json' { return $false }
+        'log_settings.json' { return $false }
+        'oobe_settings.json' { return $false }
+        'settings-telemetry.json' { return $false }
+        'UpdateState.json' { return $false }
+        'settings-placement.json' { return $false }
+        'README.md' { return $false }
+        'import.ps1' { return $false }
+    }
+
+    return $true
+}
+
 $filesToCopy = Get-ChildItem -Path $configSource -Recurse -File -ErrorAction SilentlyContinue |
-    Where-Object {
-        $_.Name -notin @('import.ps1', 'README.md')
+    ForEach-Object {
+        $relativePath = $_.FullName.Substring($configSource.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+        if (Test-ShouldImportPowerToysFile -RelativePath $relativePath) {
+            $_
+        }
     }
 
 if (-not $filesToCopy) {
@@ -55,6 +88,14 @@ foreach ($sourceFile in $filesToCopy) {
     catch {
         Write-SetupWarning "Failed to import PowerToys file '$relativePath': $($_.Exception.Message)"
     }
+}
+
+try {
+    Start-Process (Join-Path $powertoysConfigPath 'PowerToys.exe') | Out-Null
+    Write-SetupSuccess 'Restarted PowerToys to apply restored settings.'
+}
+catch {
+    Write-SetupWarning 'Could not restart PowerToys automatically. Start it manually if needed.'
 }
 
 Write-SetupSuccess 'PowerToys configuration import completed.'
