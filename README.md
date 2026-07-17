@@ -1,6 +1,8 @@
-# Windows Setup
+# Windows Setup 🪟
 
-This repository is a personal Windows infrastructure-as-code starter for reproducible setup on fresh Windows 11 installations.
+Personal infrastructure-as-code toolkit for reproducible Windows 11 installs.
+
+It is designed to restore a machine to your preferred state quickly: install apps, import personal configs, and keep sensitive backups private.
 
 ## Goals
 
@@ -8,6 +10,14 @@ This repository is a personal Windows infrastructure-as-code starter for reprodu
 - Prefer official Microsoft tooling such as PowerShell, Winget, and supported APIs.
 - Keep the repository modular and easy to maintain.
 - Avoid registry hacks unless there is no supported alternative.
+
+## What this setup restores
+
+- Apps via Winget package list.
+- StartAllBack configuration.
+- PowerToys configuration.
+- Windows UI preferences (mouse and theme settings).
+- Environment variables.
 
 ## Repository layout
 
@@ -19,25 +29,49 @@ This repository is a personal Windows infrastructure-as-code starter for reprodu
 - docs/: documentation for maintenance and decisions
 - backups/: exported settings that are not ideal for version control
 
-## Quick start
+## Quick start ⚡
 
 1. Install Git for Windows.
 2. Clone this repository.
 3. Open PowerShell in the repository root.
-4. Run:
+4. Run the interactive menu:
 
    ```powershell
-   .\Setup.ps1
+   .\scripts\Menu.ps1
    ```
+
+Alternative launcher:
+
+```powershell
+.\Menu.cmd
+```
+
+Recommended order on a fresh machine:
+
+1. Install Winget.
+2. Run full setup.
+3. Import environment variables.
+4. Import config backups.
 
 ## Notes
 
-The initial implementation is intentionally small and modular. Each script has a focused responsibility so the setup process can grow over time without becoming brittle.
+The implementation is modular by design. Each script has a focused responsibility so the setup can grow without becoming brittle.
 
-## Backup policy
+## Backup policy 🔒
 
-Sensitive or machine-specific data should not be committed by default. Backup files such as environment variable exports, registry snapshots, or app-specific state should stay under the backups directory and can be excluded from Git when needed.
+Sensitive or machine-specific data should not be committed by default.
 
-## Config coverage
+- Keep private exports under private-configs/ (Git-ignored).
+- Use public folders only for scripts, templates, and documentation.
+- Treat registry exports and app snapshots as private unless intentionally sanitized.
+
+## Config coverage ✅
 
 The current setup flow focuses on environment variables, StartAllBack, PowerToys, and Windows UI preferences (mouse/theme). Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.
+
+## Typical workflow between desktop and laptop
+
+1. On desktop, run Export everything from the menu.
+2. Sync or copy private-configs/ to the target machine securely.
+3. On laptop, run the menu and import environment variables and config backups.
+4. Restart session if a setting does not apply immediately.
