@@ -19,3 +19,4 @@ Zen-Team.Zen-Browser
 WeMod.WeMod
 Gibbed.SteamAchievementManager
 LocalSend.LocalSend
+Notepad++.Notepad++
