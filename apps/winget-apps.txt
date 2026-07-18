@@ -15,7 +15,7 @@ Blizzard.BattleNet
 RiotGames.LeagueOfLegends.EUW
 Discord.Discord
 Valve.Steam
-Zen-Team.Zen-Browser
+Mozilla.Firefox
 WeMod.WeMod
 Gibbed.SteamAchievementManager
 LocalSend.LocalSend
