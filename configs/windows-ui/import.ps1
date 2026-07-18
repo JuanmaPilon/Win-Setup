@@ -22,6 +22,7 @@ if (-not (Test-Path $sourceRoot)) {
 $registryFiles = @(
     'Mouse.reg',
     'Theme-Personalize.reg',
+    'NotifyIconSettings.reg',
     'Explorer-Advanced.reg'
 )
 

@@ -39,6 +39,7 @@ function Export-RegistryKey {
 
 Export-RegistryKey -KeyPath 'HKCU\Control Panel\Mouse' -DestinationFile (Join-Path $resolvedOutputRoot 'Mouse.reg') -Description 'mouse settings'
 Export-RegistryKey -KeyPath 'HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -DestinationFile (Join-Path $resolvedOutputRoot 'Theme-Personalize.reg') -Description 'theme personalization settings'
+Export-RegistryKey -KeyPath 'HKCU\Control Panel\NotifyIconSettings' -DestinationFile (Join-Path $resolvedOutputRoot 'NotifyIconSettings.reg') -Description 'notification area icon visibility settings'
 
 if ($IncludeExplorerAdvanced) {
     Export-RegistryKey -KeyPath 'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -DestinationFile (Join-Path $resolvedOutputRoot 'Explorer-Advanced.reg') -Description 'Explorer advanced settings'

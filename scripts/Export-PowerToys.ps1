@@ -89,4 +89,48 @@ foreach ($sourceFile in $filesToExport) {
     Write-Host "Exported PowerToys file: $relativePath" -ForegroundColor Green
 }
 
+$runtimeRoot = Join-Path $env:LOCALAPPDATA 'PowerToys'
+$runtimeDestinationRoot = Join-Path $resolvedOutputRoot 'runtime-backup'
+if (Test-Path $runtimeRoot) {
+    $runtimeFiles = Get-ChildItem -Path $runtimeRoot -Recurse -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -ieq 'backup_restore_settings.json' }
+
+    foreach ($runtimeFile in $runtimeFiles) {
+        $relativeRuntimePath = $runtimeFile.FullName.Substring($runtimeRoot.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+        $runtimeDestinationPath = Join-Path $runtimeDestinationRoot $relativeRuntimePath
+        $runtimeDestinationDirectory = Split-Path -Parent $runtimeDestinationPath
+        if (-not (Test-Path $runtimeDestinationDirectory)) {
+            New-Item -ItemType Directory -Path $runtimeDestinationDirectory -Force | Out-Null
+        }
+
+        Copy-Item -Path $runtimeFile.FullName -Destination $runtimeDestinationPath -Force
+        Write-Host "Exported PowerToys runtime backup file: runtime-backup/$relativeRuntimePath" -ForegroundColor Green
+    }
+}
+
+$documentsPath = [Environment]::GetFolderPath('MyDocuments')
+$officialBackupRoot = Join-Path $documentsPath 'PowerToys\Backup'
+$officialBackupDestination = Join-Path $resolvedOutputRoot 'ptb-backup'
+
+if (Test-Path $officialBackupRoot) {
+    $ptbFiles = Get-ChildItem -Path $officialBackupRoot -Filter '*.ptb' -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending
+    if ($ptbFiles) {
+        if (-not (Test-Path $officialBackupDestination)) {
+            New-Item -ItemType Directory -Path $officialBackupDestination -Force | Out-Null
+        }
+
+        foreach ($ptbFile in $ptbFiles) {
+            $destinationPath = Join-Path $officialBackupDestination $ptbFile.Name
+            Copy-Item -Path $ptbFile.FullName -Destination $destinationPath -Force
+            Write-Host "Exported PowerToys official backup: ptb-backup/$($ptbFile.Name)" -ForegroundColor Green
+        }
+    }
+    else {
+        Write-Host 'No .ptb backup files were found in Documents\PowerToys\Backup.' -ForegroundColor Yellow
+    }
+}
+else {
+    Write-Host 'PowerToys official backup folder was not found in Documents\PowerToys\Backup.' -ForegroundColor Yellow
+}
+
 Write-Host "PowerToys configuration exported to $resolvedOutputRoot" -ForegroundColor Green

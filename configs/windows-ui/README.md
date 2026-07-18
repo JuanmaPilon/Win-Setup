@@ -6,6 +6,7 @@ This folder restores baseline Windows UI preferences that are usually portable b
 
 - Mouse settings (`HKCU\Control Panel\Mouse`), including pointer precision behavior.
 - Theme personalization (`HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize`), including light/dark mode.
+- Notification area icon visibility (`HKCU\Control Panel\NotifyIconSettings`), including tray icon show/hide preferences.
 - Optional Explorer advanced settings (`HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced`) when exported with `-IncludeExplorerAdvanced`.
 
 ## Suggested workflow

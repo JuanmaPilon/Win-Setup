@@ -69,6 +69,21 @@ Sensitive or machine-specific data should not be committed by default.
 
 The current setup flow focuses on environment variables, StartAllBack, PowerToys, and Windows UI preferences (mouse/theme). Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.
 
+## Environment variables safety
+
+Environment variable export/import is hardened for cross-machine portability.
+
+- Windows-managed variables (for example TEMP, TMP, USERPROFILE, APPDATA, LOCALAPPDATA) are skipped by default.
+- Paths under user profiles are normalized to portable tokens when possible (for example %USERPROFILE%).
+- Unsafe values tied to a different user profile are detected and skipped.
+- Import supports preview mode before applying changes.
+
+Preview import without writing changes:
+
+```powershell
+.\scripts\Import-EnvironmentVariables.ps1 -DryRun
+```
+
 ## Typical workflow between desktop and laptop
 
 1. On desktop, run Export everything from the menu.

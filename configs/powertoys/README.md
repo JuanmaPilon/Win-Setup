@@ -12,3 +12,7 @@ This folder is intended to hold PowerToys configuration files that can be import
 ## Notes
 
 PowerToys may store configuration in different files depending on the version and the modules enabled. Keep sensitive exports under `private-configs/powertoys`, which is ignored by Git.
+
+The exporter also captures official PowerToys backup files (`*.ptb`) from `Documents/PowerToys/Backup` into `private-configs/powertoys/ptb-backup`. During import, those `.ptb` files are restored to the target machine's `Documents/PowerToys/Backup` path.
+
+To improve fidelity for Command Palette and launcher/plugin behavior, the exporter also captures `backup_restore_settings.json` files from `%LOCALAPPDATA%/PowerToys` into `private-configs/powertoys/runtime-backup`, and the importer restores them back to `%LOCALAPPDATA%/PowerToys`.

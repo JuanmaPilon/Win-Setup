@@ -29,8 +29,9 @@ if (-not (Test-Path $powertoysConfigPath)) {
     return
 }
 
-Get-Process -Name 'PowerToys' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-Get-Process -Name 'PowerToys.Settings' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Get-Process -ErrorAction SilentlyContinue |
+    Where-Object { $_.ProcessName -like 'PowerToys*' -or $_.ProcessName -like 'CmdPal*' } |
+    Stop-Process -Force -ErrorAction SilentlyContinue
 
 function Test-ShouldImportPowerToysFile {
     param([Parameter(Mandatory = $true)][string]$RelativePath)
@@ -38,6 +39,14 @@ function Test-ShouldImportPowerToysFile {
     $normalizedPath = $RelativePath -replace '\\', '/'
 
     if ($normalizedPath -match '(^|/)Logs(/|$)' -or $normalizedPath -match '(^|/)RunnerLogs(/|$)' -or $normalizedPath -match '(^|/)UpdateLogs(/|$)' -or $normalizedPath -match '(^|/)Updates(/|$)') {
+        return $false
+    }
+
+    if ($normalizedPath -match '(^|/)ptb-backup(/|$)') {
+        return $false
+    }
+
+    if ($normalizedPath -match '(^|/)runtime-backup(/|$)') {
         return $false
     }
 
@@ -57,6 +66,52 @@ function Test-ShouldImportPowerToysFile {
     }
 
     return $true
+}
+
+$runtimeSourceRoot = Join-Path $configSource 'runtime-backup'
+$runtimeTargetRoot = Join-Path $env:LOCALAPPDATA 'PowerToys'
+
+if (Test-Path $runtimeSourceRoot) {
+    $runtimeFiles = Get-ChildItem -Path $runtimeSourceRoot -Recurse -File -ErrorAction SilentlyContinue
+    foreach ($runtimeFile in $runtimeFiles) {
+        $relativeRuntimePath = $runtimeFile.FullName.Substring($runtimeSourceRoot.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+        $runtimeDestinationPath = Join-Path $runtimeTargetRoot $relativeRuntimePath
+        $runtimeDestinationDirectory = Split-Path -Parent $runtimeDestinationPath
+
+        try {
+            if (-not (Test-Path $runtimeDestinationDirectory)) {
+                New-Item -ItemType Directory -Path $runtimeDestinationDirectory -Force | Out-Null
+            }
+
+            Copy-Item -Path $runtimeFile.FullName -Destination $runtimeDestinationPath -Force
+            Write-SetupInfo "Imported PowerToys runtime file: $relativeRuntimePath"
+        }
+        catch {
+            Write-SetupWarning "Failed to import PowerToys runtime file '$relativeRuntimePath': $($_.Exception.Message)"
+        }
+    }
+}
+
+$documentsPath = [Environment]::GetFolderPath('MyDocuments')
+$officialBackupRoot = Join-Path $documentsPath 'PowerToys/Backup'
+$ptbSourceRoot = Join-Path $configSource 'ptb-backup'
+
+if (Test-Path $ptbSourceRoot) {
+    try {
+        if (-not (Test-Path $officialBackupRoot)) {
+            New-Item -ItemType Directory -Path $officialBackupRoot -Force | Out-Null
+        }
+
+        $ptbFiles = Get-ChildItem -Path $ptbSourceRoot -Filter '*.ptb' -File -ErrorAction SilentlyContinue
+        foreach ($ptbFile in $ptbFiles) {
+            $destinationPath = Join-Path $officialBackupRoot $ptbFile.Name
+            Copy-Item -Path $ptbFile.FullName -Destination $destinationPath -Force
+            Write-SetupInfo "Restored PowerToys official backup file: $($ptbFile.Name)"
+        }
+    }
+    catch {
+        Write-SetupWarning "Failed to restore PowerToys .ptb backup files: $($_.Exception.Message)"
+    }
 }
 
 $filesToCopy = Get-ChildItem -Path $configSource -Recurse -File -ErrorAction SilentlyContinue |
@@ -91,7 +146,13 @@ foreach ($sourceFile in $filesToCopy) {
 }
 
 try {
-    Start-Process (Join-Path $powertoysConfigPath 'PowerToys.exe') | Out-Null
+    $powerToysExe = Get-Command 'PowerToys.exe' -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty Source
+    if ($powerToysExe) {
+        Start-Process $powerToysExe | Out-Null
+    }
+    else {
+        Start-Process 'PowerToys.exe' -ErrorAction Stop | Out-Null
+    }
     Write-SetupSuccess 'Restarted PowerToys to apply restored settings.'
 }
 catch {
