@@ -18,6 +18,7 @@ It is designed to restore a machine to your preferred state quickly: install app
 - PowerToys configuration.
 - Windows UI preferences (mouse and theme settings).
 - Environment variables.
+- Startup apps (Run entries and Startup folder).
 
 ## Repository layout
 
@@ -67,7 +68,7 @@ Sensitive or machine-specific data should not be committed by default.
 
 ## Config coverage ✅
 
-The current setup flow focuses on environment variables, StartAllBack, PowerToys, and Windows UI preferences (mouse/theme). Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.
+The current setup flow focuses on environment variables, StartAllBack, PowerToys, Windows UI preferences (mouse/theme), and startup apps. Each export uses a private backup path so you can rebuild the same machine state without publishing personal data.
 
 ## Environment variables safety
 

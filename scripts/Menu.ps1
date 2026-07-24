@@ -45,7 +45,8 @@ while ($true) {
             & (Join-Path $repoRoot 'scripts/Export-StartAllBack.ps1')
             & (Join-Path $repoRoot 'scripts/Export-PowerToys.ps1')
             & (Join-Path $repoRoot 'scripts/Export-WindowsUI.ps1') -IncludeExplorerAdvanced -IncludeQuickAccessPins
-            Write-Host 'Export completed for environment variables, StartAllBack, PowerToys, and Windows UI configuration.' -ForegroundColor Green
+            & (Join-Path $repoRoot 'scripts/Export-StartupApps.ps1')
+            Write-Host 'Export completed for environment variables, StartAllBack, PowerToys, Windows UI, and startup apps.' -ForegroundColor Green
         }
         '6' {
             Write-SetupSuccess 'Exiting menu.'
